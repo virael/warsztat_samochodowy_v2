@@ -19,39 +19,49 @@ public class VehicleDbUtil {
 		dataSource = theDataSource;
 	}
 
-	public List<Vehicle> getVehicles() throws Exception {
+	public List<Vehicle> getVehicle(String theCustomerId) throws Exception { //getVehicles -> getVehicle
 
 		List<Vehicle> vehicles = new ArrayList<>();
 
 		Connection myConn = null;
-		Statement myStmt = null;
+//		Statement myStmt = null; //było
 		ResultSet myRs = null;
+		PreparedStatement myStmt = null; // dodane
+		int customerId; // dodane
 
 		try {
+			
+			customerId = Integer.parseInt(theCustomerId); // dodane
 			// get a connection
 			myConn = dataSource.getConnection();
 
 			// create sql statement
-			String sql = "SELECT `brand`, `model`, `yearOfProduction`, `registration`, `nextService` FROM `Vehicle`"; // tu do poprawy
+			String sql = "SELECT `id`, `brand`, `model`, `yearOfProduction`, `registration`, `nextService` FROM `Vehicle` WHERE customerId = ?"; // tu do poprawy
 
-			myStmt = myConn.createStatement();
+//			myStmt = myConn.createStatement(); // było
+			
+			myStmt = myConn.prepareStatement(sql); // dodane
+
+			myStmt.setInt(1, customerId); //dodane
+
+			myRs = myStmt.executeQuery(); //dodane
 
 			// execute query
-			myRs = myStmt.executeQuery(sql);
+//			myRs = myStmt.executeQuery(sql);
 
 			// process result set
 			while (myRs.next()) {
 
 				// retrieve data from result set row
-//				int id = myRs.getInt("id"); // wywalało że nie może znaleźć kolumny z id
+				int id = myRs.getInt("id"); // wywalało że nie może znaleźć kolumny z id
 				String brand = myRs.getString("brand");
 				String model = myRs.getString("model");
 				Date yearOfProduction = myRs.getDate("yearOfProduction");
-				Date registration = myRs.getDate("registration");
+				String registration = myRs.getString("registration");
 				Date nextService = myRs.getDate("nextService");
 
 				// create new student object
-				Vehicle tempVehicle = new Vehicle(brand, model, yearOfProduction, registration, nextService);
+				Vehicle tempVehicle = new Vehicle(id, brand, model, yearOfProduction, registration, nextService);
 
 				// add it to the list of students
 				vehicles.add(tempVehicle);
@@ -91,19 +101,23 @@ public class VehicleDbUtil {
 		try {
 			myConn = dataSource.getConnection();
 
-			String sql = "INSERT INTO `Vehicle`(`brand`, `model`, `yearOfProduction`, `registration`, `nextService`, `customerId`, `employeeId`) VALUES (?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO `Vehicle`(`brand`, `model`, `yearOfProduction`, `registration`, `nextService`, `customerId`, `employeeId`) VALUES (?, ?, ?, ?, ?, 5, 1)";
 			
-
+			java.util.Date getYearOfProduction = theVehicle.getYearOfProduction(); //konwertuje daty util to sql
+			java.sql.Date getYearOfProductionToSql = new java.sql.Date(getYearOfProduction.getTime());
+			
+			java.util.Date getNextService = theVehicle.getNextService();
+			java.sql.Date getNextServiceToSql = new java.sql.Date(getNextService.getTime());
 
 			myStmt = myConn.prepareStatement(sql);
 
 			myStmt.setString(1, theVehicle.getBrand());
 			myStmt.setString(2, theVehicle.getModel());
-			myStmt.setDate(3, (java.sql.Date) theVehicle.getYearOfProduction()); // cholera wie czy dobrze
-			myStmt.setDate(4, (java.sql.Date) theVehicle.getRegistration());
-			myStmt.setDate(5, (java.sql.Date) theVehicle.getNextService());
-			myStmt.setInt(6, theVehicle.getCustomerId()); // prawdopodbnie do usunięcia
-			myStmt.setInt(7, theVehicle.getEmployeeId());
+			myStmt.setDate(3, getYearOfProductionToSql); // cholera wie czy dobrze
+			myStmt.setString(4, theVehicle.getRegistration());
+			myStmt.setDate(5, getNextServiceToSql);
+//			myStmt.setInt(6, theVehicle.getCustomerId()); // prawdopodbnie do usunięcia
+//			myStmt.setInt(7, theVehicle.getEmployeeId()); , `customerId`, `employeeId` , ?
 
 			
 
@@ -131,7 +145,7 @@ public class VehicleDbUtil {
 
 			myConn = dataSource.getConnection();
 
-			String sql = "SELECT `brand`, `model`, `yearOfProduction`, `registration`, `nextService` FROM `Vehicle` WHERE customerId = ?";
+			String sql = "SELECT `brand`, `model`, `yearOfProduction`, `registration`, `nextService` FROM `Vehicle` WHERE id = ?";
 
 			myStmt = myConn.prepareStatement(sql);
 
@@ -144,7 +158,7 @@ public class VehicleDbUtil {
 				String brand = myRs.getString("brand");
 				String model = myRs.getString("model");
 				Date yearOfProduction = myRs.getDate("yearOfProduction");
-				Date registration = myRs.getDate("registration");
+				String registration = myRs.getString("registration");
 				Date nextService = myRs.getDate("nextService");
 
 				theVehicle = new Vehicle(brand, model, yearOfProduction, registration, nextService);
@@ -169,17 +183,24 @@ public class VehicleDbUtil {
 			myConn = dataSource.getConnection();
 
 			// create SQL update statement
-			String sql = "update Vehicle set brand=?, model=?, yearOfProduction=?, registration=?, nextService=? where customerId=?";
+			String sql = "update Vehicle set brand=?, model=?, yearOfProduction=?, registration=?, nextService=? where id=?";
 
 			// prepare statement
 			myStmt = myConn.prepareStatement(sql);
+			
+			java.util.Date getYearOfProduction = theVehicle.getYearOfProduction(); //konwertuje daty util to sql
+			java.sql.Date getYearOfProductionToSql = new java.sql.Date(getYearOfProduction.getTime());
+			
+			java.util.Date getNextService = theVehicle.getNextService();
+			java.sql.Date getNextServiceToSql = new java.sql.Date(getNextService.getTime());
 
 			// set params
 			myStmt.setString(1, theVehicle.getBrand());
 			myStmt.setString(2, theVehicle.getModel());
-			myStmt.setDate(3, (java.sql.Date) theVehicle.getYearOfProduction());
-			myStmt.setDate(4, (java.sql.Date) theVehicle.getRegistration());
-			myStmt.setDate(5, (java.sql.Date) theVehicle.getNextService());
+			myStmt.setDate(3, getYearOfProductionToSql);
+			myStmt.setString(4, theVehicle.getRegistration());
+			myStmt.setDate(5, getNextServiceToSql);
+			myStmt.setInt(6, theVehicle.getId());
 
 			// execute SQL statement
 			myStmt.execute();
@@ -200,7 +221,7 @@ public class VehicleDbUtil {
 
 			myConn = dataSource.getConnection();
 
-			String sql = "DELETE FROM Vehicle WHERE customerId=?";
+			String sql = "DELETE FROM Vehicle WHERE id=?";
 
 			myStmt = myConn.prepareStatement(sql);
 

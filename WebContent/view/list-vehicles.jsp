@@ -44,12 +44,12 @@
 					
 					<c:url var="tempLink" value="VehicleControllerServlet">
 						<c:param name="command" value="LOAD" />
-						<c:param name="customerId" value="${tempCustomer.id}"/>
+						<c:param name="vehicleId" value="${tempVehicle.id}"/>
 					</c:url>
 					
 					<c:url var="deleteLink" value="VehicleControllerServlet">
 						<c:param name="command" value="DELETE" />
-						<c:param name="customerId" value="${tempCustomer.id}"/>
+						<c:param name="vehicleId" value="${tempVehicle.id}"/>
 					</c:url>
 					
 					<tr>

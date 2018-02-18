@@ -62,7 +62,7 @@
 					</c:url>
 					
 					<c:url var="vehicleLink" value="VehicleControllerServlet">
-						<c:param name="command" value="VEHICLE" />
+						<c:param name="command" value="LIST" />
 						<c:param name="customerId" value="${tempCustomer.id}"/>
 					</c:url>
 					

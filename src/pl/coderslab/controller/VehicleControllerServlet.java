@@ -107,7 +107,7 @@ public class VehicleControllerServlet extends HttpServlet {
 
 	private void deleteVehicles(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		String theCustomerId = request.getParameter("customerId");
+		String theCustomerId = request.getParameter("vehicleId");
 		
 		vehicleDbUtil.deleteVehicle(theCustomerId); // tu może być potrzeba baza danych customera i/lub deleteCustomer
 		
@@ -126,14 +126,13 @@ public class VehicleControllerServlet extends HttpServlet {
 		String yearOfProduction = request.getParameter("yearOfProduction");
 		Date yearOfProductionToDate = sdf.parse(yearOfProduction);
 		String registration = request.getParameter("registration");
-		Date registrationToDate = sdf.parse(registration);
 		String nextService = request.getParameter("nextService");
 		Date nextServiceToDate = sdf.parse(nextService);
 
 		
 //		brand=?, model=?, yearOfProduction=?, registration=?, nextService=?
 		// create a new student object
-		Vehicle theVehicle = new Vehicle (id, brand, model, yearOfProductionToDate, registrationToDate, nextServiceToDate);
+		Vehicle theVehicle = new Vehicle (id, brand, model, yearOfProductionToDate, registration, nextServiceToDate);
 
 		// perform update on database
 		vehicleDbUtil.updateVehicle(theVehicle);
@@ -145,18 +144,20 @@ public class VehicleControllerServlet extends HttpServlet {
 
 	private void loadVehicles(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		String theCustomerId = request.getParameter("customerId"); //tu niby też ma szukać po id customera
+		String theCustomerId = request.getParameter("vehicleId"); //tu niby też ma szukać po id customera
 
 		Vehicle theVehicle = vehicleDbUtil.getVehicles(theCustomerId);
 
 		request.setAttribute("THE_VEHICLE", theVehicle);
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/view/update-vehicles.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/view/update-vehicle.jsp");
 		dispatcher.forward(request, response);
 	}
 
 	private void addVehicles(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		String theCustomerId = request.getParameter("customerId"); // to dodane
+		
 		String brand = request.getParameter("brand");
 		String model = request.getParameter("model");
 		
@@ -165,13 +166,12 @@ public class VehicleControllerServlet extends HttpServlet {
 		String yearOfProduction = request.getParameter("yearOfProduction");
 		Date yearOfProductionToDate = sdf.parse(yearOfProduction);
 		String registration = request.getParameter("registration");
-		Date registrationToDate = sdf.parse(registration);
 		String nextService = request.getParameter("nextService");
 		Date nextServiceToDate = sdf.parse(nextService);
 		
 		// tu muszę jeszcze jakoś dodać id customera
 
-		Vehicle theVehicle = new Vehicle(brand, model, yearOfProductionToDate, registrationToDate, nextServiceToDate);
+		Vehicle theVehicle = new Vehicle(brand, model, yearOfProductionToDate, registration, nextServiceToDate);
 
 		vehicleDbUtil.addVehicle(theVehicle);
 
@@ -180,9 +180,11 @@ public class VehicleControllerServlet extends HttpServlet {
 
 	private void listVehicles(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-//		Vehicle theVehicle = vehicleDbUtil.getVehicles(theCustomerId);
+		String theCustomerId = request.getParameter("customerId"); // to dodane
+		
+//		Vehicle theVehicle = vehicleDbUtil.getVehicle(theCustomerId);
 		// get students from db util
-		List<Vehicle> vehicles = vehicleDbUtil.getVehicles();
+		List<Vehicle> vehicles = vehicleDbUtil.getVehicle(theCustomerId); // getVehicles -> getVehicle
 
 		// add vehicles to the request
 		request.setAttribute("VEHICLES_LIST", vehicles);
